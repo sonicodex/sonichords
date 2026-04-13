@@ -17,6 +17,21 @@ export function toScientific(note, rootNote) {
   return normSharp(note) + octave
 }
 
+// Convert an ordered array of note names to ascending scientific notation.
+// Octave increments whenever the chromatic index wraps around (e.g. B→C).
+// Useful for scales, arpeggios, or any sequence that should ascend.
+export function scaleToScientific(notes, startOctave = 3) {
+  let octave = startOctave
+  let prevIdx = -1
+  return notes.map(note => {
+    const sharp = normSharp(note)
+    const idx = CHROMATIC_SHARP.indexOf(sharp)
+    if (prevIdx !== -1 && idx <= prevIdx) octave++
+    prevIdx = idx
+    return `${sharp}${octave}`
+  })
+}
+
 // Ensure the AudioContext is running — must be the first call in every click handler.
 // iOS Safari requires Tone.start() to be awaited synchronously within the user gesture;
 // Tone.context.resume() covers the case where the context was suspended after creation.
