@@ -39,7 +39,7 @@ export default function ChordExplorer({
   }
 
   async function handleNotePlay(note) {
-    await playChord([note], note, '2n')
+    await playChord([note], note, 0.4)
   }
 
   function handleSuggestionClick(degreeArr) {
