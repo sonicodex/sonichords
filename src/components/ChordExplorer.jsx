@@ -38,6 +38,10 @@ export default function ChordExplorer({
     await playChord(chord.notes, chord.notes[0])
   }
 
+  async function handleNotePlay(note) {
+    await playChord([note], note, '2n')
+  }
+
   function handleSuggestionClick(degreeArr) {
     const resolved = degreeArr
       .map(deg => {
@@ -101,10 +105,10 @@ export default function ChordExplorer({
         <p className="section-label">Escala</p>
         <div className="scale-row">
           {scale.map((note, i) => (
-            <div key={i} className="scale-pill">
+            <button key={i} className="scale-pill" onClick={() => handleNotePlay(note)}>
               <span className="scale-degree">{DEGREE_LABELS[i]}</span>
               <span className="scale-note">{note}</span>
-            </div>
+            </button>
           ))}
         </div>
       </div>

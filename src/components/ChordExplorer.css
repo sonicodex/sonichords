@@ -131,6 +131,14 @@
   border: 1px solid var(--border);
   background: var(--surface);
   min-width: 44px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.scale-pill:hover, .scale-pill:active {
+  border-color: rgba(237,139,22,0.4);
+  background: rgba(237,139,22,0.07);
 }
 
 .scale-degree {
