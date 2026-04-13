@@ -65,6 +65,14 @@ export function setVolume(value) {
 // Default volume at 70%
 setVolume(70)
 
+// Play a single note already in scientific notation (e.g. 'C4', 'F#3').
+// Use this when the octave is already resolved (e.g. from scaleToScientific).
+export async function playNote(scientificNote, duration = 0.4) {
+  if (!scientificNote) return
+  await ensureAudio()
+  synth.triggerAttackRelease(scientificNote, duration)
+}
+
 // Play a single chord.
 // notes: array of note names in internal format (['C','E','G'])
 // rootNote: root of the chord (for octave calculation)

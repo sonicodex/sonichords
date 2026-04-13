@@ -9,7 +9,7 @@ import {
   degreeToChordIndex,
 } from '../lib/musicTheory'
 import ProgressionBuilder from './ProgressionBuilder'
-import { playChord } from '../lib/audio'
+import { playChord, playNote, scaleToScientific } from '../lib/audio'
 import './ChordExplorer.css'
 
 const QUALITY_LABEL = { maj: 'mayor', min: 'menor', dim: 'dism.' }
@@ -26,7 +26,8 @@ export default function ChordExplorer({
 }) {
   const [localRoot, setLocalRoot] = useState('C')
   const root = selectedNote || localRoot
-  const scale  = getScale(root, selectedMode)
+  const scale           = getScale(root, selectedMode)
+  const scientificScale = scaleToScientific(scale)
   const chords = getDiatonicChords(scale, selectedMode)
   const suggestions = getSuggestedProgressions(selectedMode)
 
@@ -38,8 +39,8 @@ export default function ChordExplorer({
     await playChord(chord.notes, chord.notes[0])
   }
 
-  async function handleNotePlay(note) {
-    await playChord([note], note, 0.4)
+  async function handleNotePlay(index) {
+    await playNote(scientificScale[index], 0.4)
   }
 
   function handleSuggestionClick(degreeArr) {
@@ -105,7 +106,7 @@ export default function ChordExplorer({
         <p className="section-label">Escala</p>
         <div className="scale-row">
           {scale.map((note, i) => (
-            <button key={i} className="scale-pill" onClick={() => handleNotePlay(note)}>
+            <button key={i} className="scale-pill" onClick={() => handleNotePlay(i)}>
               <span className="scale-degree">{DEGREE_LABELS[i]}</span>
               <span className="scale-note">{note}</span>
             </button>
