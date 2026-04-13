@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: -2px;   /* flush against the SVG bottom, same as .inner-ring-toggle */
 }
 
 /* ── Mode header (mirrors .inner-ring-toggle) ─────────────────────────────── */

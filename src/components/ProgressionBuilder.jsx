@@ -61,6 +61,13 @@ export default function ProgressionBuilder({ chords, setChords, root, mode, onSa
     setChords(prev => prev.filter((_, i) => i !== index))
   }
 
+  function handleClearAll() {
+    stopPlayback()
+    setIsPlaying(false)
+    setActiveChordIndex(null)
+    setChords([])
+  }
+
   function handleSave() {
     if (!name.trim() || chords.length === 0) return
     onSave({ name: name.trim(), root, mode, chords })
@@ -70,7 +77,14 @@ export default function ProgressionBuilder({ chords, setChords, root, mode, onSa
 
   return (
     <div className="progression-builder">
-      <p className="section-label">Constructor de progresión</p>
+      <div className="builder-header">
+        <p className="section-label">Constructor de progresión</p>
+        {chords.length > 0 && (
+          <button className="builder-clear-btn" onClick={handleClearAll} aria-label="Limpiar progresión">
+            Limpiar
+          </button>
+        )}
+      </div>
 
       {chords.length === 0 ? (
         <p className="builder-empty">Toca un acorde para agregarlo aquí…</p>
