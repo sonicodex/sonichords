@@ -1,0 +1,42 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #001E2B;
+  --surface:      #003547;
+  --border:       #005E54;
+  --gold:         #ED8B16;
+  --red:          #E1523D;
+  --lime:         #C2BB00;
+  --text:         #F0EDE4;
+  --text-muted:   rgba(240,237,228,0.45);
+  --font-display: 'Google Sans', system-ui, -apple-system, sans-serif;
+  --font-ui:      'Google Sans', system-ui, -apple-system, sans-serif;
+  --radius:       10px;
+  --transition:   300ms ease;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-ui);
+}
+
+input {
+  font-family: var(--font-ui);
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+}

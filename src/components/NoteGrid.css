@@ -1,0 +1,103 @@
+.note-grid-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Mode header (mirrors .inner-ring-toggle) ─────────────────────────────── */
+.note-grid-header {
+  display: flex;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  padding: 3px;
+  gap: 3px;
+  align-self: center;
+}
+
+.note-grid-mode-pill {
+  padding: 5px 18px;
+  border-radius: 16px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  transition: all var(--transition);
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  font-family: var(--font-ui);
+}
+
+.note-grid-mode-pill.active {
+  background: rgba(255,255,255,0.09);
+  color: var(--text);
+}
+
+/* ── Grid ─────────────────────────────────────────────────────────────────── */
+.note-grid {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  grid-template-rows: repeat(3, 30px);
+  gap: 4px;
+  width: 100%;
+}
+
+/* ── Cells ────────────────────────────────────────────────────────────────── */
+.note-cell {
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 500;
+  font-family: var(--font-ui);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  -webkit-tap-highlight-color: transparent;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.note-cell.spacer {
+  background: transparent;
+  border-color: transparent;
+  cursor: default;
+  pointer-events: none;
+}
+
+.note-cell.neutral:hover {
+  border-color: rgba(237,139,22,0.3);
+  color: var(--text);
+}
+
+.note-cell.tonic {
+  background: rgba(237,139,22,0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.note-cell.tonic:hover {
+  background: rgba(237,139,22,0.22);
+}
+
+.note-cell.in-scale:hover {
+  filter: brightness(1.15);
+}
+
+.note-cell.out-scale {
+  opacity: 0.3;
+}
+
+.note-cell.out-scale:hover {
+  opacity: 0.7;
+  border-color: rgba(237,139,22,0.25);
+  color: var(--text-muted);
+}

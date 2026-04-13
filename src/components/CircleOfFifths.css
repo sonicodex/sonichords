@@ -1,0 +1,113 @@
+.circle-of-fifths {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 4px 8px;   /* reduced side padding → más espacio para el círculo */
+  gap: 12px;
+  min-height: 100%;
+}
+
+/* ── Mode selector ──────────────────────────────────────────────────────────── */
+.mode-selector {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 2px 8px;
+  width: 100%;
+}
+
+.mode-pill {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 13px;
+  transition: all var(--transition);
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mode-pill.active {
+  background: rgba(255,255,255,0.07);
+}
+
+/* ── SVG container — max-width sube para el +15% ────────────────────────────── */
+.circle-svg-wrap {
+  width: 100%;
+  max-width: 440px;   /* era 380px → +15.8% */
+  padding: 0 2px;
+}
+
+.circle-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── Inner ring toggle ──────────────────────────────────────────────────────── */
+.inner-ring-toggle {
+  display: flex;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  padding: 3px;
+  gap: 3px;
+}
+
+.ring-toggle-pill {
+  padding: 5px 18px;
+  border-radius: 16px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  transition: all var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ring-toggle-pill.active {
+  background: rgba(255,255,255,0.09);
+  color: var(--text);
+}
+
+/* ── Legend ─────────────────────────────────────────────────────────────────── */
+.circle-legend {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 4px 8px;
+}
+
+.legend-item {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+}
+
+.legend-tonic {
+  color: #ED8B16;
+  border-color: rgba(237,139,22,0.3);
+  background: rgba(237,139,22,0.08);
+}
+
+.legend-dominant {
+  color: #00A896;
+  border-color: rgba(0,168,150,0.3);
+  background: rgba(0,168,150,0.08);
+}
+
+.legend-subdominant {
+  color: #1A7FAF;
+  border-color: rgba(26,127,175,0.3);
+  background: rgba(26,127,175,0.08);
+}
+
+.legend-relative {
+  color: #C2BB00;
+  border-color: rgba(194,187,0,0.3);
+  background: rgba(194,187,0,0.08);
+}
