@@ -1,14 +1,16 @@
 .nav {
   position: fixed;
-  bottom: 0;
+  top: 0;
   left: 0;
   right: 0;
+  bottom: auto;
   display: flex;
   background: rgba(10, 10, 15, 0.96);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid var(--border);
-  padding-bottom: env(safe-area-inset-bottom);
+  border-bottom: 1px solid var(--border);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: 0;
   z-index: 100;
 }
 
@@ -18,7 +20,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 10px 0 8px;
+  padding: 8px 0 10px;
   background: none;
   border: none;
   color: var(--text-muted);
