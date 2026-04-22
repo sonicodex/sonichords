@@ -177,6 +177,20 @@ function Identificar() {
 
   const match = useMemo(() => identifyChord(pitchClasses, bassNote), [pitchClasses, bassNote])
 
+  // Notación estándar de 6 caracteres: cuerda 6 → cuerda 1
+  // Cada cuerda: 'x' muted, '0' abierta, o número de traste absoluto
+  const positionNotation = useMemo(() => {
+    const chars = Array.from({ length: 6 }, (_, i) => {
+      if (mutedStrings[i]) return 'x'
+      if (openStrings[i])  return '0'
+      const dot = dots.find(d => d.string === i)
+      if (!dot) return 'x'
+      return String(dot.fret + fretOffset)
+    })
+    // Si algún valor tiene 2 dígitos, separar con espacios para legibilidad
+    return chars.some(c => c.length > 1) ? chars.join(' ') : chars.join('')
+  }, [dots, openStrings, mutedStrings, fretOffset])
+
   const fingerNumbers = useMemo(() => {
     const arr = [null, null, null, null, null, null]
     const uniqueFrets = [...new Set(dots.map(d => d.fret))].sort((a, b) => a - b)
@@ -207,6 +221,7 @@ function Identificar() {
             onDotsChange={setDots}
             onOpenMutedChange={handleOpenMutedChange}
           />
+          <p className="position-notation">{positionNotation}</p>
           <div className="diagram-nav">
             <button
               onClick={() => setFretOffset(f => Math.max(0, f - 1))}
@@ -251,6 +266,11 @@ function Identificar() {
                 <span className="note-pill external">{match.bassNote}</span>
               )}
             </div>
+            {match.alternatives && match.alternatives.length > 0 && (
+              <p className="identifier-alternatives">
+                También: {match.alternatives.join(', ')}
+              </p>
+            )}
           </div>
         )}
 

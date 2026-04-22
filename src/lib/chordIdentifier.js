@@ -91,12 +91,56 @@ export function dotsToNotes(dots, openStrings, mutedStrings, fretOffset) {
  * }
  * o null si no hay match razonable.
  */
+function buildInversionInfo(chord, bass) {
+  const typeSpanish = TYPE_SPANISH[chord.type] || chord.type
+  const baseLabel   = `${chord.root} ${typeSpanish}`
+
+  if (!bass || bass === chord.root) {
+    return { slashName: chord.name, inversionLabel: null, isExternalBass: false, inversionIndex: 0 }
+  }
+
+  const inversionIndex = chord.notes.indexOf(bass)
+
+  if (inversionIndex > 0) {
+    const invName = INVERSION_NAMES[inversionIndex]
+    return {
+      slashName:      chord.name + '/' + bass,
+      inversionLabel: invName ? `${baseLabel} — ${invName}` : `${baseLabel} — bajo en ${bass}`,
+      isExternalBass: false,
+      inversionIndex,
+    }
+  }
+
+  return {
+    slashName:      chord.name + '/' + bass,
+    inversionLabel: `${baseLabel} — bajo externo en ${bass}`,
+    isExternalBass: true,
+    inversionIndex: -1,
+  }
+}
+
+/**
+ * Dado un array de pitch classes y la nota del bajo real, encuentra el mejor
+ * acorde en CHORD_LIBRARY con desempate por nota del bajo.
+ *
+ * Orden de prioridad en empate de score:
+ *   1. Cuya raíz coincide con bassNote
+ *   2. Mayor número de notas coincidentes
+ *   3. Empate total → se listan como alternatives
+ *
+ * Returns:
+ * {
+ *   chord, score, bassNote,
+ *   slashName, inversionLabel, isExternalBass, inversionIndex,
+ *   alternatives,  — array de nombres de acordes alternativos (empate total)
+ * }
+ * o null si no hay match razonable.
+ */
 export function identifyChord(pitchClasses, bassNote = null) {
   if (!pitchClasses || pitchClasses.length === 0) return null
 
   const inputSet = new Set(pitchClasses)
-  let best = null
-  let bestScore = -Infinity
+  const candidates = []
 
   for (const chord of CHORD_LIBRARY) {
     const chordSet = new Set(chord.notes)
@@ -106,51 +150,53 @@ export function identifyChord(pitchClasses, bassNote = null) {
       if (chordSet.has(pc)) matches++
     }
 
-    const extraNotes = pitchClasses.filter(pc => !chordSet.has(pc)).length
+    const extraNotes       = pitchClasses.filter(pc => !chordSet.has(pc)).length
     const missedChordNotes = chord.notes.filter(n => !inputSet.has(n)).length
     const score = matches / chord.notes.length - extraNotes * 0.3 - missedChordNotes * 0.2
 
-    if (score > bestScore) {
-      bestScore = score
-      best = { chord, score }
-    }
+    if (score >= 0.4) candidates.push({ chord, score, matches })
   }
 
-  if (!best || best.score < 0.4) return null
+  if (candidates.length === 0) return null
 
-  const { chord } = best
-  const bass = bassNote ?? pitchClasses[0] ?? null
+  // Ordenar por score desc
+  candidates.sort((a, b) => b.score - a.score)
+  const topScore = candidates[0].score
 
-  const typeSpanish = TYPE_SPANISH[chord.type] || chord.type
-  const baseLabel   = `${chord.root} ${typeSpanish}`
+  // Candidatos empatados en el top score (epsilon para float)
+  const tied = candidates.filter(c => Math.abs(c.score - topScore) < 0.001)
 
-  let slashName, inversionLabel, isExternalBass, inversionIndex
+  // Desempate 1: raíz === bassNote
+  const bassWinners = bassNote ? tied.filter(c => c.chord.root === bassNote) : []
 
-  if (!bass || bass === chord.root) {
-    // Posición fundamental
-    slashName      = chord.name
-    inversionLabel = null
-    isExternalBass = false
-    inversionIndex = 0
+  let winner
+  let alternatives = []
+
+  if (bassWinners.length > 0) {
+    winner       = bassWinners[0]
+    alternatives = tied.filter(c => c !== winner).map(c => c.chord.name)
+  } else if (tied.length > 1) {
+    // Desempate 2: más notas coincidentes
+    tied.sort((a, b) => b.matches - a.matches)
+    winner = tied[0]
+    // ¿Empate total en matches también?
+    const sameMatches = tied.filter(c => c.matches === winner.matches)
+    if (sameMatches.length > 1) {
+      alternatives = sameMatches.slice(1).map(c => c.chord.name)
+    }
   } else {
-    inversionIndex = chord.notes.indexOf(bass)
-
-    if (inversionIndex > 0) {
-      // Nota del bajo pertenece al acorde → inversión
-      slashName      = chord.name + '/' + bass
-      isExternalBass = false
-      const invName  = INVERSION_NAMES[inversionIndex]
-      inversionLabel = invName
-        ? `${baseLabel} — ${invName}`
-        : `${baseLabel} — bajo en ${bass}`
-    } else {
-      // Bajo externo (no pertenece al acorde)
-      slashName      = chord.name + '/' + bass
-      isExternalBass = true
-      inversionIndex = -1
-      inversionLabel = `${baseLabel} — bajo externo en ${bass}`
-    }
+    winner = tied[0]
   }
 
-  return { chord, score: best.score, bassNote: bass, slashName, inversionLabel, isExternalBass, inversionIndex }
+  const { chord } = winner
+  const bass = bassNote ?? pitchClasses[0] ?? null
+  const invInfo = buildInversionInfo(chord, bass)
+
+  return {
+    chord,
+    score: winner.score,
+    bassNote: bass,
+    alternatives,
+    ...invInfo,
+  }
 }

@@ -288,6 +288,22 @@
   background: rgba(237, 139, 22, 0.12);
 }
 
+.position-notation {
+  font-family: var(--font-ui, 'JetBrains Mono', monospace);
+  font-size: 15px;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 0.18em;
+  margin: 2px 0 0;
+}
+
+.identifier-alternatives {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 6px;
+}
+
 .note-pill.external {
   border-color: rgba(225, 82, 61, 0.5);
   color: var(--red, #E1523D);
