@@ -1,0 +1,32 @@
+.guitar-diagram-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.guitar-diagram-svg {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+}
+
+.diagram-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.diagram-nav button {
+  padding: 4px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.diagram-nav button:active {
+  background: var(--border);
+  color: var(--text);
+}

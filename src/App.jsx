@@ -2,6 +2,7 @@ import { useState } from 'react'
 import CircleOfFifths from './components/CircleOfFifths'
 import ChordExplorer from './components/ChordExplorer'
 import SavedProgressions from './components/SavedProgressions'
+import ChordFinder from './components/ChordFinder'
 import Nav from './components/Nav'
 import { useProgressions } from './hooks/useProgressions'
 import './App.css'
@@ -41,6 +42,9 @@ function App() {
             setActiveProgression={setActiveProgression}
             onSave={save}
           />
+        )}
+        {activeTab === 'chords' && (
+          <ChordFinder />
         )}
         {activeTab === 'saved' && (
           <SavedProgressions

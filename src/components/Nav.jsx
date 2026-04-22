@@ -27,6 +27,19 @@ const NAV_ITEMS = [
     ),
   },
   {
+    id: 'chords',
+    label: 'Acordes',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <rect x="2" y="5" width="20" height="14" rx="1" />
+        <line x1="7" y1="5" x2="7" y2="19" />
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="17" y1="5" x2="17" y2="19" />
+        <circle cx="9.5" cy="11" r="1.5" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+  {
     id: 'saved',
     label: 'Guardadas',
     icon: (
