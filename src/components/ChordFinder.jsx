@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { CHORD_LIBRARY, CHROMATIC, CHORD_TYPES } from '../lib/chordLibrary'
-import { dotsToNotes, identifyChord } from '../lib/chordIdentifier'
+import { dotsToNotes, getBassNote, identifyChord } from '../lib/chordIdentifier'
 import GuitarDiagram from './GuitarDiagram'
 import './ChordFinder.css'
 
@@ -170,7 +170,12 @@ function Identificar() {
     [dots, openStrings, mutedStrings, fretOffset],
   )
 
-  const match = useMemo(() => identifyChord(pitchClasses), [pitchClasses])
+  const bassNote = useMemo(
+    () => getBassNote(dots, openStrings, mutedStrings, fretOffset),
+    [dots, openStrings, mutedStrings, fretOffset],
+  )
+
+  const match = useMemo(() => identifyChord(pitchClasses, bassNote), [pitchClasses, bassNote])
 
   const fingerNumbers = useMemo(() => {
     const arr = [null, null, null, null, null, null]
@@ -228,20 +233,24 @@ function Identificar() {
 
         {match && (
           <div className="identifier-match">
-            <span className="identifier-chord-name">{match.chord.name}</span>
-            <span className="identifier-chord-full">{match.chord.fullName}</span>
+            <span className="identifier-chord-name">{match.slashName}</span>
+            {match.inversionLabel ? (
+              <span className={`identifier-chord-full${match.isExternalBass ? ' external-bass' : ''}`}>
+                {match.inversionLabel}
+              </span>
+            ) : (
+              <span className="identifier-chord-full">{match.chord.fullName}</span>
+            )}
             <div className="identifier-notes">
               {match.chord.notes.map(n => (
                 <span key={n} className={`note-pill${pitchClasses.includes(n) ? ' present' : ''}`}>
                   {n}
                 </span>
               ))}
+              {match.isExternalBass && match.bassNote && (
+                <span className="note-pill external">{match.bassNote}</span>
+              )}
             </div>
-            {match.inversion > 0 && (
-              <span className="identifier-inversion">
-                Inversión {match.inversion} ({match.chord.notes[match.inversion]} en bajo)
-              </span>
-            )}
           </div>
         )}
 

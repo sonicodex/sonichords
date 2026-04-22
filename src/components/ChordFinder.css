@@ -288,10 +288,14 @@
   background: rgba(237, 139, 22, 0.12);
 }
 
-.identifier-inversion {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-style: italic;
+.note-pill.external {
+  border-color: rgba(225, 82, 61, 0.5);
+  color: var(--red, #E1523D);
+  background: rgba(225, 82, 61, 0.08);
+}
+
+.identifier-chord-full.external-bass {
+  color: rgba(225, 82, 61, 0.75);
 }
 
 .identifier-pc-pills {
