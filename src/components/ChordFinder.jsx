@@ -229,11 +229,25 @@ function Identificar() {
             <button
               onClick={() => setFretOffset(f => Math.max(0, f - 1))}
               disabled={fretOffset === 0}
-            >
-              ▼
-            </button>
+              aria-label="Bajar posición"
+            >▼</button>
+            <input
+              type="number"
+              className="fret-offset-input"
+              min={0}
+              max={12}
+              value={fretOffset}
+              onChange={e => {
+                const v = parseInt(e.target.value, 10)
+                if (!isNaN(v)) setFretOffset(Math.max(0, Math.min(12, v)))
+              }}
+              aria-label="Traste base"
+            />
+            <button
+              onClick={() => setFretOffset(f => Math.min(12, f + 1))}
+              aria-label="Subir posición"
+            >▲</button>
             <button onClick={handleReset} className="diagram-reset">Reset</button>
-            <button onClick={() => setFretOffset(f => Math.min(11, f + 1))}>▲</button>
           </div>
         </div>
       </div>

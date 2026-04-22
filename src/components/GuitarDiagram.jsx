@@ -184,11 +184,12 @@ export default function GuitarDiagram({
         const y = FRET_Y[dot.fret - 1] + (FRET_Y[dot.fret] - FRET_Y[dot.fret - 1]) / 2
         const finger = fingerNumbers[dot.string]
         return (
-          <g key={`dot-${idx}`}>
-            <circle
-              cx={x} cy={y} r={11}
-              fill="var(--gold)"
-            />
+          <g
+            key={`dot-${idx}`}
+            onClick={interactive ? () => handleGridClick(dot.string, dot.fret) : undefined}
+            style={interactive ? { cursor: 'pointer' } : {}}
+          >
+            <circle cx={x} cy={y} r={11} fill="var(--gold)" />
             {finger !== null && (
               <text
                 x={x} y={y}
