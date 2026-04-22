@@ -34,11 +34,12 @@ function noteToMidi(noteWithOctave) {
 
 const TUNING_MIDI = STANDARD_TUNING.map(noteToMidi)
 
-// Resuelve el MIDI y el pitch class de una cuerda dada (string index 0-5)
+// Resuelve el MIDI de una cuerda (llamado solo si no está muted).
+// Cuerda neutral (sin dot, no open) = abierta, igual que openStrings[i]=true.
 function stringMidi(i, dots, openStrings, fretOffset) {
   if (openStrings[i]) return TUNING_MIDI[i]
   const dot = dots.find(d => d.string === i)
-  if (!dot) return null
+  if (!dot) return TUNING_MIDI[i]   // neutral → abierta
   return TUNING_MIDI[i] + dot.fret + fretOffset
 }
 

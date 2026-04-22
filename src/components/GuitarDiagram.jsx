@@ -21,14 +21,21 @@ export default function GuitarDiagram({
 
   function handleGridClick(stringIdx, fretIdx) {
     if (!interactive || !onDotsChange) return
-    // fretIdx is 1-5 (diagram fret)
     const existing = dots.findIndex(d => d.string === stringIdx && d.fret === fretIdx)
     if (existing !== -1) {
+      // Eliminar dot — dejar estado de la cuerda sin cambios
       onDotsChange(dots.filter((_, i) => i !== existing))
     } else {
-      // Remove any other dot on same string, then add
+      // Añadir dot — si la cuerda estaba muted u open, limpiar ese estado
       const filtered = dots.filter(d => d.string !== stringIdx)
       onDotsChange([...filtered, { string: stringIdx, fret: fretIdx }])
+      if (onOpenMutedChange && (mutedStrings[stringIdx] || openStrings[stringIdx])) {
+        const newOpen  = [...openStrings]
+        const newMuted = [...mutedStrings]
+        newOpen[stringIdx]  = false
+        newMuted[stringIdx] = false
+        onOpenMutedChange(newOpen, newMuted)
+      }
     }
   }
 

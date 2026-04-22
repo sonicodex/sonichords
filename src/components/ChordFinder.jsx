@@ -165,31 +165,34 @@ function Identificar() {
     setMutedStrings(newMuted)
   }
 
+  // Sólo procesar notas si el usuario ha colocado al menos un dot o marcado una cuerda open
+  // explícitamente, para evitar identificar el estado vacío inicial.
+  const hasInput = dots.length > 0 || openStrings.some(Boolean)
+
   const pitchClasses = useMemo(
-    () => dotsToNotes(dots, openStrings, mutedStrings, fretOffset),
-    [dots, openStrings, mutedStrings, fretOffset],
+    () => hasInput ? dotsToNotes(dots, openStrings, mutedStrings, fretOffset) : [],
+    [hasInput, dots, openStrings, mutedStrings, fretOffset],
   )
 
   const bassNote = useMemo(
-    () => getBassNote(dots, openStrings, mutedStrings, fretOffset),
-    [dots, openStrings, mutedStrings, fretOffset],
+    () => hasInput ? getBassNote(dots, openStrings, mutedStrings, fretOffset) : null,
+    [hasInput, dots, openStrings, mutedStrings, fretOffset],
   )
 
   const match = useMemo(() => identifyChord(pitchClasses, bassNote), [pitchClasses, bassNote])
 
   // Notación estándar de 6 caracteres: cuerda 6 → cuerda 1
-  // Cada cuerda: 'x' muted, '0' abierta, o número de traste absoluto
+  // Cada cuerda: 'x' muted, número de traste absoluto, o '0' (abierta/neutral)
   const positionNotation = useMemo(() => {
     const chars = Array.from({ length: 6 }, (_, i) => {
       if (mutedStrings[i]) return 'x'
-      if (openStrings[i])  return '0'
       const dot = dots.find(d => d.string === i)
-      if (!dot) return 'x'
+      if (!dot) return '0'   // abierta o neutral → cuerda suena al aire
       return String(dot.fret + fretOffset)
     })
     // Si algún valor tiene 2 dígitos, separar con espacios para legibilidad
     return chars.some(c => c.length > 1) ? chars.join(' ') : chars.join('')
-  }, [dots, openStrings, mutedStrings, fretOffset])
+  }, [dots, mutedStrings, fretOffset])
 
   const fingerNumbers = useMemo(() => {
     const arr = [null, null, null, null, null, null]
