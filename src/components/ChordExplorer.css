@@ -13,6 +13,22 @@
   padding: 2px 0;
 }
 
+.mode-pill-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.mode-mood {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: center;
+  white-space: nowrap;
+  font-family: var(--font-ui);
+  letter-spacing: 0.02em;
+}
+
 .exp-mode-pill {
   flex-shrink: 0;
   padding: 7px 14px;

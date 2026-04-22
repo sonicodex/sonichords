@@ -16,13 +16,13 @@ const MODE_DEGREE_OFFSET = {
 const CHROMATIC_KEY_SIGS = [0, -5, 2, -3, 4, -1, 6, 1, -4, 3, -2, 5]
 
 export const GREEK_MODES = {
-  Ionian:     { intervals: [2,2,1,2,2,2,1], label: 'Jónico (Mayor)',   color: '#ED8B16' },
-  Dorian:     { intervals: [2,1,2,2,2,1,2], label: 'Dórico',           color: '#00A896' },
-  Phrygian:   { intervals: [1,2,2,2,1,2,2], label: 'Frigio',           color: '#E1523D' },
-  Lydian:     { intervals: [2,2,2,1,2,2,1], label: 'Lidio',            color: '#C2BB00' },
-  Mixolydian: { intervals: [2,2,1,2,2,1,2], label: 'Mixolidio',        color: '#D4792A' },
-  Aeolian:    { intervals: [2,1,2,2,1,2,2], label: 'Eólico (Menor)',   color: '#1A7FAF' },
-  Locrian:    { intervals: [1,2,2,1,2,2,2], label: 'Locrio',           color: '#B8A800' },
+  Ionian:     { intervals: [2,2,1,2,2,2,1], label: 'Jónico (Mayor)',   color: '#ED8B16', mood: 'Alegre, luminoso, resuelto' },
+  Dorian:     { intervals: [2,1,2,2,2,1,2], label: 'Dórico',           color: '#00A896', mood: 'Melancólico pero esperanzador' },
+  Phrygian:   { intervals: [1,2,2,2,1,2,2], label: 'Frigio',           color: '#E1523D', mood: 'Oscuro, flamenco, tenso' },
+  Lydian:     { intervals: [2,2,2,1,2,2,1], label: 'Lidio',            color: '#C2BB00', mood: 'Etéreo, onírico, flotante' },
+  Mixolydian: { intervals: [2,2,1,2,2,1,2], label: 'Mixolidio',        color: '#D4792A', mood: 'Rockero, bluesy, dominante' },
+  Aeolian:    { intervals: [2,1,2,2,1,2,2], label: 'Eólico (Menor)',   color: '#1A7FAF', mood: 'Triste, introspectivo, dramático' },
+  Locrian:    { intervals: [1,2,2,1,2,2,2], label: 'Locrio',           color: '#B8A800', mood: 'Inestable, disonante, siniestro' },
 }
 
 export const RELATIVE_MINORS = {

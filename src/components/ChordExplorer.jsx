@@ -58,16 +58,23 @@ export default function ChordExplorer({
 
       {/* Mode selector */}
       <div className="explorer-mode-row">
-        {Object.entries(GREEK_MODES).map(([key, { label, color }]) => (
-          <button
-            key={key}
-            className={`exp-mode-pill${selectedMode === key ? ' active' : ''}`}
-            style={selectedMode === key ? { borderColor: color, color } : {}}
-            onClick={() => setSelectedMode(key)}
-          >
-            {label}
-          </button>
-        ))}
+        {Object.entries(GREEK_MODES).map(([key, { label, color, mood }]) => {
+          const isActive = selectedMode === key
+          return (
+            <div key={key} className="mode-pill-wrapper">
+              <button
+                className={`exp-mode-pill${isActive ? ' active' : ''}`}
+                style={isActive ? { borderColor: color, color } : {}}
+                onClick={() => setSelectedMode(key)}
+              >
+                {label}
+              </button>
+              {isActive && (
+                <span className="mode-mood">{mood}</span>
+              )}
+            </div>
+          )
+        })}
       </div>
 
       {/* Root note picker (shown only when no circle note is selected) */}

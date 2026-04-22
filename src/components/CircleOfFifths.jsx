@@ -134,16 +134,23 @@ export default function CircleOfFifths({
 
       {/* Mode selector */}
       <div className="mode-selector">
-        {Object.entries(GREEK_MODES).map(([key, { label, color }]) => (
-          <button
-            key={key}
-            className={`mode-pill${selectedMode === key ? ' active' : ''}`}
-            style={selectedMode === key ? { borderColor: color, color } : {}}
-            onClick={() => setSelectedMode(key)}
-          >
-            {label}
-          </button>
-        ))}
+        {Object.entries(GREEK_MODES).map(([key, { label, color, mood }]) => {
+          const isActive = selectedMode === key
+          return (
+            <div key={key} className="mode-pill-wrapper">
+              <button
+                className={`mode-pill${isActive ? ' active' : ''}`}
+                style={isActive ? { borderColor: color, color } : {}}
+                onClick={() => setSelectedMode(key)}
+              >
+                {label}
+              </button>
+              {isActive && (
+                <span className="mode-mood">{mood}</span>
+              )}
+            </div>
+          )
+        })}
       </div>
 
       {/* SVG */}
