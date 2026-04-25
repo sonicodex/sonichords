@@ -11,7 +11,7 @@ export default function GuitarDiagram({
   openStrings = [false, false, false, false, false, false],
   mutedStrings = [false, false, false, false, false, false],
   fretOffset = 0,
-  fingerNumbers = [null, null, null, null, null, null],
+  noteLabels = [null, null, null, null, null, null],
   interactive = false,
   onDotsChange,
   onOpenMutedChange,
@@ -182,7 +182,7 @@ export default function GuitarDiagram({
       {dots.map((dot, idx) => {
         const x = STRING_X[dot.string]
         const y = FRET_Y[dot.fret - 1] + (FRET_Y[dot.fret] - FRET_Y[dot.fret - 1]) / 2
-        const finger = fingerNumbers[dot.string]
+        const label = noteLabels[dot.string]
         return (
           <g
             key={`dot-${idx}`}
@@ -190,17 +190,17 @@ export default function GuitarDiagram({
             style={interactive ? { cursor: 'pointer' } : {}}
           >
             <circle cx={x} cy={y} r={11} fill="var(--gold)" />
-            {finger !== null && (
+            {label && (
               <text
                 x={x} y={y}
-                fontSize="11"
+                fontSize="9"
                 fill="#001E2B"
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fontFamily="var(--font-ui)"
                 fontWeight="700"
               >
-                {finger}
+                {label}
               </text>
             )}
           </g>

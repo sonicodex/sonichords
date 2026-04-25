@@ -290,18 +290,24 @@
 
 .position-notation {
   font-family: var(--font-ui, 'JetBrains Mono', monospace);
-  font-size: 15px;
-  color: var(--text-muted);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
   text-align: center;
-  letter-spacing: 0.18em;
-  margin: 2px 0 0;
+  letter-spacing: 0.22em;
+  margin: 6px 0 0;
 }
 
 .identifier-alternatives {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
   text-align: center;
-  margin-top: 6px;
+  margin-top: 10px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
 }
 
 .note-pill.external {

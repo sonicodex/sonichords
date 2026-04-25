@@ -1,8 +1,11 @@
-import { CHORD_LIBRARY } from './chordLibrary'
+import { chords, STANDARD_TUNING } from './chordLibrary.js'
 
-export const STANDARD_TUNING = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4']
+export { STANDARD_TUNING }
 
 const CHROMATIC = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+
+// Índice cromático de cada raíz (C=0 … B=11) — usado para desempate
+const CHROMATIC_ROOT_IDX = Object.fromEntries(CHROMATIC.map((n, i) => [n, i]))
 
 const NOTE_SEMITONES = {
   C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5,
@@ -21,6 +24,12 @@ const INVERSION_NAMES = {
   1: 'primera inversión',
   2: 'segunda inversión',
   3: 'tercera inversión',
+}
+
+const INVERSION_NAMES_ES = {
+  first:  'primera inversión',
+  second: 'segunda inversión',
+  third:  'tercera inversión',
 }
 
 // Convert note name with octave (e.g. "E2") to MIDI semitone number
@@ -96,6 +105,19 @@ function buildInversionInfo(chord, bass) {
   const typeSpanish = TYPE_SPANISH[chord.type] || chord.type
   const baseLabel   = `${chord.root} ${typeSpanish}`
 
+  // Slash chord de la librería: chord.bass ya está definido
+  if (chord.bass) {
+    const invName = chord.inversion ? INVERSION_NAMES_ES[chord.inversion] : null
+    return {
+      slashName:      chord.name,
+      inversionLabel: invName
+        ? `${baseLabel} — ${invName}`
+        : `${baseLabel} — bajo externo en ${chord.bass}`,
+      isExternalBass: !chord.inversion,
+      inversionIndex: chord.notes.indexOf(chord.bass),
+    }
+  }
+
   if (!bass || bass === chord.root) {
     return { slashName: chord.name, inversionLabel: null, isExternalBass: false, inversionIndex: 0 }
   }
@@ -143,7 +165,7 @@ export function identifyChord(pitchClasses, bassNote = null) {
   const inputSet = new Set(pitchClasses)
   const candidates = []
 
-  for (const chord of CHORD_LIBRARY) {
+  for (const chord of chords) {
     const chordSet = new Set(chord.notes)
 
     let matches = 0
@@ -167,26 +189,36 @@ export function identifyChord(pitchClasses, bassNote = null) {
   // Candidatos empatados en el top score (epsilon para float)
   const tied = candidates.filter(c => Math.abs(c.score - topScore) < 0.001)
 
-  // Desempate 1: raíz === bassNote
-  const bassWinners = bassNote ? tied.filter(c => c.chord.root === bassNote) : []
+  // Desempate 1: slash chord de librería cuyo bass === bassNote
+  const slashWinners = bassNote ? tied.filter(c => c.chord.bass === bassNote) : []
+  // Desempate 2: raíz === bassNote (posición fundamental con ese bajo)
+  const bassWinners  = bassNote ? tied.filter(c => c.chord.root === bassNote && !c.chord.bass) : []
 
   let winner
   let alternatives = []
 
-  if (bassWinners.length > 0) {
+  let isTie = false
+
+  if (slashWinners.length > 0) {
+    // Slash chord de librería coincide con la nota del bajo
+    winner       = slashWinners[0]
+    alternatives = tied.filter(c => c !== winner).map(c => c.chord.name)
+    isTie        = false
+  } else if (bassWinners.length > 0) {
+    // Ganador claro: la raíz está en el bajo
     winner       = bassWinners[0]
     alternatives = tied.filter(c => c !== winner).map(c => c.chord.name)
-  } else if (tied.length > 1) {
-    // Desempate 2: más notas coincidentes
-    tied.sort((a, b) => b.matches - a.matches)
-    winner = tied[0]
-    // ¿Empate total en matches también?
-    const sameMatches = tied.filter(c => c.matches === winner.matches)
-    if (sameMatches.length > 1) {
-      alternatives = sameMatches.slice(1).map(c => c.chord.name)
-    }
+    isTie        = false
   } else {
-    winner = tied[0]
+    // Sin raíz en el bajo: desempate por (1) más coincidencias, (2) índice cromático
+    // Esus4 (E=4) gana sobre Asus2 (A=9) → el músico ve el nombre más esperado
+    tied.sort((a, b) => {
+      if (b.matches !== a.matches) return b.matches - a.matches
+      return (CHROMATIC_ROOT_IDX[a.chord.root] ?? 99) - (CHROMATIC_ROOT_IDX[b.chord.root] ?? 99)
+    })
+    winner       = tied[0]
+    alternatives = tied.slice(1).map(c => c.chord.name)
+    isTie        = tied.length > 1   // elección arbitraria → no mostrar barra
   }
 
   const { chord } = winner
@@ -198,6 +230,7 @@ export function identifyChord(pitchClasses, bassNote = null) {
     score: winner.score,
     bassNote: bass,
     alternatives,
+    isTie,
     ...invInfo,
   }
 }

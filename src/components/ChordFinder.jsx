@@ -1,35 +1,47 @@
 import { useState, useMemo } from 'react'
-import { CHORD_LIBRARY, CHROMATIC, CHORD_TYPES } from '../lib/chordLibrary'
+import { getChordsByRoot, searchChords, ROOTS } from '../lib/chordLibrary'
 import { dotsToNotes, getBassNote, identifyChord } from '../lib/chordIdentifier'
 import GuitarDiagram from './GuitarDiagram'
 import './ChordFinder.css'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-const FLAT_TO_SHARP = { Bb: 'A#', Eb: 'D#', Ab: 'G#', Db: 'C#', Gb: 'F#' }
+const CHROMATIC = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+const _NS = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 }
+const TUNING_MIDI = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'].map(s => {
+  const m = s.match(/^([A-G]#?)(\d+)$/)
+  return _NS[m[1]] + (parseInt(m[2]) + 1) * 12
+})
+
+// fretOffset convention: library uses "fretOffset fr" as the starting fret (diagram fret 1 = fretOffset fr)
+// so actualFret = dot.fret + max(0, fretOffset - 1)
+function libraryNoteLabels(voicing) {
+  const labels = Array(6).fill(null)
+  voicing.dots.forEach(dot => {
+    const actualFret = dot.fret + Math.max(0, voicing.fretOffset - 1)
+    labels[dot.string] = CHROMATIC[(TUNING_MIDI[dot.string] + actualFret) % 12]
+  })
+  return labels
+}
+
+// Interactive convention: fretOffset is added directly (actualFret = dot.fret + fretOffset)
+function interactiveNoteLabels(dots, fretOffset) {
+  const labels = Array(6).fill(null)
+  dots.forEach(dot => {
+    labels[dot.string] = CHROMATIC[(TUNING_MIDI[dot.string] + dot.fret + fretOffset) % 12]
+  })
+  return labels
+}
 
 function normalizeQuery(raw) {
   const trimmed = raw.trim()
   if (!trimmed) return ''
 
-  // Replace flat roots
-  let s = trimmed
-  for (const [flat, sharp] of Object.entries(FLAT_TO_SHARP)) {
-    if (s.startsWith(flat)) {
-      s = sharp + s.slice(flat.length)
-      break
-    }
-  }
-
-  // Normalise suffix tokens
-  s = s
+  return trimmed
     .replace(/°/g, 'dim')
     .replace(/\+/g, 'aug')
-    .replace(/maj/gi, 'maj')
-    .replace(/min/gi, 'm')
-    .replace(/^([A-G]#?)M(\d*)$/, '$1maj$2') // CM → Cmaj (no suffix)
-
-  return s
+    .replace(/\bM7\b/g, 'maj7')
+    .replace(/^([A-Gb]{1,2}[b#]?)M(\d*)$/, '$1maj$2') // CM → Cmaj
 }
 
 // ── sub-components ───────────────────────────────────────────────────────────
@@ -53,7 +65,7 @@ function ChordCard({ chord, defaultExpanded = false }) {
             openStrings={voicing.openStrings}
             mutedStrings={voicing.mutedStrings}
             fretOffset={voicing.fretOffset}
-            fingerNumbers={voicing.fingerNumbers}
+            noteLabels={libraryNoteLabels(voicing)}
           />
         </div>
       )}
@@ -67,7 +79,7 @@ function Diccionario() {
   const [selectedRoot, setSelectedRoot] = useState('C')
 
   const chords = useMemo(
-    () => CHORD_LIBRARY.filter(c => c.root === selectedRoot),
+    () => getChordsByRoot(selectedRoot),
     [selectedRoot],
   )
 
@@ -76,7 +88,7 @@ function Diccionario() {
       {/* Root pills */}
       <div className="root-pills-wrap">
         <div className="root-pills">
-          {CHROMATIC.map(root => (
+          {ROOTS.map(root => (
             <button
               key={root}
               className={`root-pill${root === selectedRoot ? ' active' : ''}`}
@@ -104,12 +116,9 @@ function Buscar() {
   const [query, setQuery] = useState('')
 
   const results = useMemo(() => {
-    const norm = normalizeQuery(query).toLowerCase()
+    const norm = normalizeQuery(query)
     if (!norm) return []
-    return CHORD_LIBRARY.filter(c =>
-      c.name.toLowerCase().includes(norm) ||
-      c.fullName.toLowerCase().includes(norm)
-    ).slice(0, 24)
+    return searchChords(norm).slice(0, 24)
   }, [query])
 
   return (
@@ -194,14 +203,10 @@ function Identificar() {
     return chars.some(c => c.length > 1) ? chars.join(' ') : chars.join('')
   }, [dots, mutedStrings, fretOffset])
 
-  const fingerNumbers = useMemo(() => {
-    const arr = [null, null, null, null, null, null]
-    const uniqueFrets = [...new Set(dots.map(d => d.fret))].sort((a, b) => a - b)
-    dots.forEach(d => {
-      arr[d.string] = uniqueFrets.indexOf(d.fret) + 1
-    })
-    return arr
-  }, [dots])
+  const noteLabels = useMemo(
+    () => interactiveNoteLabels(dots, fretOffset),
+    [dots, fretOffset],
+  )
 
   function handleReset() {
     setDots([...EMPTY_DOTS])
@@ -219,7 +224,7 @@ function Identificar() {
             openStrings={openStrings}
             mutedStrings={mutedStrings}
             fretOffset={fretOffset}
-            fingerNumbers={fingerNumbers}
+            noteLabels={noteLabels}
             interactive
             onDotsChange={setDots}
             onOpenMutedChange={handleOpenMutedChange}
@@ -265,7 +270,9 @@ function Identificar() {
 
         {match && (
           <div className="identifier-match">
-            <span className="identifier-chord-name">{match.slashName}</span>
+            <span className="identifier-chord-name">
+              {match.isTie ? match.chord.name : match.slashName}
+            </span>
             {match.inversionLabel ? (
               <span className={`identifier-chord-full${match.isExternalBass ? ' external-bass' : ''}`}>
                 {match.inversionLabel}
