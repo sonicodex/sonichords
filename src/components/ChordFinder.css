@@ -218,7 +218,14 @@
 
 .identifier-diagram-wrap {
   width: 100%;
-  max-width: 240px;
+}
+
+.identifier-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
 }
 
 .identifier-result {

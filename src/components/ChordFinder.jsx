@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { getChordsByRoot, searchChords, ROOTS } from '../lib/chordLibrary'
 import { dotsToNotes, getBassNote, identifyChord } from '../lib/chordIdentifier'
 import GuitarDiagram from './GuitarDiagram'
+import Fretboard from './Fretboard'
 import './ChordFinder.css'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -158,102 +159,71 @@ function Buscar() {
 
 // ── Identificar ───────────────────────────────────────────────────────────────
 
-const EMPTY_DOTS    = []
-const EMPTY_OPEN    = [false, false, false, false, false, false]
-const EMPTY_MUTED   = [true,  false, false, false, false, false]
-const EMPTY_FINGERS = [null,  null,  null,  null,  null,  null]
+const EMPTY_DOTS  = []
+const EMPTY_OPEN  = [false, false, false, false, false, false]
+const EMPTY_MUTED = [true,  false, false, false, false, false]
 
 function Identificar() {
   const [dots,        setDots]        = useState(EMPTY_DOTS)
   const [openStrings, setOpenStrings] = useState([...EMPTY_OPEN])
   const [mutedStrings,setMutedStrings]= useState([...EMPTY_MUTED])
-  const [fretOffset,  setFretOffset]  = useState(0)
 
   function handleOpenMutedChange(newOpen, newMuted) {
     setOpenStrings(newOpen)
     setMutedStrings(newMuted)
   }
 
-  // Sólo procesar notas si el usuario ha colocado al menos un dot o marcado una cuerda open
-  // explícitamente, para evitar identificar el estado vacío inicial.
+  // Dots son traste absoluto (1-24); fretOffset=0 para dotsToNotes/getBassNote
   const hasInput = dots.length > 0 || openStrings.some(Boolean)
 
   const pitchClasses = useMemo(
-    () => hasInput ? dotsToNotes(dots, openStrings, mutedStrings, fretOffset) : [],
-    [hasInput, dots, openStrings, mutedStrings, fretOffset],
+    () => hasInput ? dotsToNotes(dots, openStrings, mutedStrings, 0) : [],
+    [hasInput, dots, openStrings, mutedStrings],
   )
 
   const bassNote = useMemo(
-    () => hasInput ? getBassNote(dots, openStrings, mutedStrings, fretOffset) : null,
-    [hasInput, dots, openStrings, mutedStrings, fretOffset],
+    () => hasInput ? getBassNote(dots, openStrings, mutedStrings, 0) : null,
+    [hasInput, dots, openStrings, mutedStrings],
   )
 
   const match = useMemo(() => identifyChord(pitchClasses, bassNote), [pitchClasses, bassNote])
 
-  // Notación estándar de 6 caracteres: cuerda 6 → cuerda 1
-  // Cada cuerda: 'x' muted, número de traste absoluto, o '0' (abierta/neutral)
   const positionNotation = useMemo(() => {
     const chars = Array.from({ length: 6 }, (_, i) => {
       if (mutedStrings[i]) return 'x'
+      if (openStrings[i]) return '0'
       const dot = dots.find(d => d.string === i)
-      if (!dot) return '0'   // abierta o neutral → cuerda suena al aire
-      return String(dot.fret + fretOffset)
+      return dot ? String(dot.fret) : '0'
     })
-    // Si algún valor tiene 2 dígitos, separar con espacios para legibilidad
     return chars.some(c => c.length > 1) ? chars.join(' ') : chars.join('')
-  }, [dots, mutedStrings, fretOffset])
+  }, [dots, openStrings, mutedStrings])
 
   const noteLabels = useMemo(
-    () => interactiveNoteLabels(dots, fretOffset),
-    [dots, fretOffset],
+    () => interactiveNoteLabels(dots, 0),
+    [dots],
   )
 
   function handleReset() {
     setDots([...EMPTY_DOTS])
     setOpenStrings([...EMPTY_OPEN])
     setMutedStrings([...EMPTY_MUTED])
-    setFretOffset(0)
   }
 
   return (
     <div className="finder-section identifier-section">
       <div className="identifier-diagram-wrap">
-        <div className="guitar-diagram-wrap">
-          <GuitarDiagram
-            dots={dots}
-            openStrings={openStrings}
-            mutedStrings={mutedStrings}
-            fretOffset={fretOffset}
-            noteLabels={noteLabels}
-            interactive
-            onDotsChange={setDots}
-            onOpenMutedChange={handleOpenMutedChange}
-          />
+        <Fretboard
+          dots={dots}
+          openStrings={openStrings}
+          mutedStrings={mutedStrings}
+          noteLabels={noteLabels}
+          interactive
+          onDotsChange={setDots}
+          onOpenMutedChange={handleOpenMutedChange}
+        />
+        <div className="identifier-controls">
           <p className="position-notation">{positionNotation}</p>
-          <div className="diagram-nav">
-            <button
-              onClick={() => setFretOffset(f => Math.max(0, f - 1))}
-              disabled={fretOffset === 0}
-              aria-label="Bajar posición"
-            >▼</button>
-            <input
-              type="number"
-              className="fret-offset-input"
-              min={0}
-              max={12}
-              value={fretOffset}
-              onChange={e => {
-                const v = parseInt(e.target.value, 10)
-                if (!isNaN(v)) setFretOffset(Math.max(0, Math.min(12, v)))
-              }}
-              aria-label="Traste base"
-            />
-            <button
-              onClick={() => setFretOffset(f => Math.min(12, f + 1))}
-              aria-label="Subir posición"
-            >▲</button>
-            <button onClick={handleReset} className="diagram-reset">Reset</button>
-          </div>
+          <button onClick={handleReset} className="diagram-reset">Reset</button>
         </div>
       </div>
 
@@ -313,13 +283,13 @@ function Identificar() {
 // ── Main ChordFinder ──────────────────────────────────────────────────────────
 
 const MODES = [
-  { id: 'diccionario', label: 'Diccionario' },
-  { id: 'buscar',      label: 'Buscar'      },
   { id: 'identificar', label: 'Identificar' },
+  { id: 'buscar',      label: 'Buscar'      },
+  { id: 'diccionario', label: 'Diccionario' },
 ]
 
 export default function ChordFinder() {
-  const [mode, setMode] = useState('diccionario')
+  const [mode, setMode] = useState('identificar')
 
   return (
     <div className="chord-finder">

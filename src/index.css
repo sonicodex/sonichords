@@ -1,16 +1,17 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:           #001E2B;
-  --surface:      #003547;
-  --border:       #005E54;
-  --gold:         #ED8B16;
-  --red:          #E1523D;
-  --lime:         #C2BB00;
-  --text:         #F0EDE4;
-  --text-muted:   rgba(240,237,228,0.45);
-  --font-display: 'Google Sans', system-ui, -apple-system, sans-serif;
-  --font-ui:      'Google Sans', system-ui, -apple-system, sans-serif;
+  --bg:           #F2EFE4;
+  --surface:      #E8E5D8;
+  --border:       #1A1A1A;
+  --gold:         #E5342A;
+  --red:          #E5342A;
+  --lime:         #F5C800;
+  --teal:         #1A1A1A;
+  --text:         #1A1A1A;
+  --text-muted:   rgba(26,26,26,0.45);
+  --font-display: 'Cinzel', serif;
+  --font-ui:      'DM Mono', monospace;
   --radius:       10px;
   --transition:   300ms ease;
 }
