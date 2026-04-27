@@ -74,7 +74,7 @@ const C_DOMINANT   = '#00A896'
 const C_SUBDOMINANT = '#1A7FAF'
 const C_RELATIVE   = '#C2BB00'  // inner ring selected
 const C_BG         = '#001E2B'
-const C_TEXT       = '#F0EDE4'
+const C_TEXT       = '#1A1A1A'
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function CircleOfFifths({
@@ -93,11 +93,11 @@ export default function CircleOfFifths({
   // ── Color helpers ────────────────────────────────────────────────────────────
   function getMajorFill(i) {
     const nn = normalizeNote(CIRCLE_NOTES[i])
-    if (!selectedNote || !relations) return 'rgba(255,255,255,0.05)'
+    if (!selectedNote || !relations) return 'rgba(0,0,0,0.06)'
     if (nn === normalizeNote(selectedNote))           return C_TONIC
     if (nn === normalizeNote(relations.dominant))     return C_DOMINANT
     if (nn === normalizeNote(relations.subdominant))  return C_SUBDOMINANT
-    return 'rgba(255,255,255,0.06)'
+    return 'rgba(0,0,0,0.06)'
   }
 
   function getMajorGlow(i) {
@@ -110,22 +110,22 @@ export default function CircleOfFifths({
 
   function getMajorTextColor(i) {
     const nn = normalizeNote(CIRCLE_NOTES[i])
-    if (!selectedNote) return 'rgba(240,237,228,0.65)'
+    if (!selectedNote) return 'rgba(26,26,26,0.65)'
     if (nn === normalizeNote(selectedNote))            return C_BG
     if (nn === normalizeNote(relations?.dominant))     return C_TEXT
     if (nn === normalizeNote(relations?.subdominant))  return C_TEXT
-    return 'rgba(240,237,228,0.45)'
+    return 'rgba(26,26,26,0.45)'
   }
 
   function getInnerFill(i) {
-    if (!selectedNote) return 'rgba(255,255,255,0.03)'
+    if (!selectedNote) return 'rgba(0,0,0,0.04)'
     if (i === selectedIdx) return hexToRgba(C_RELATIVE, 0.28)
-    return 'rgba(255,255,255,0.03)'
+    return 'rgba(0,0,0,0.04)'
   }
 
   function getInnerTextColor(i) {
-    if (!selectedNote) return 'rgba(240,237,228,0.4)'
-    return i === selectedIdx ? C_RELATIVE : 'rgba(240,237,228,0.4)'
+    if (!selectedNote) return 'rgba(26,26,26,0.4)'
+    return i === selectedIdx ? C_RELATIVE : 'rgba(26,26,26,0.4)'
   }
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -133,24 +133,26 @@ export default function CircleOfFifths({
     <div className="circle-of-fifths">
 
       {/* Mode selector */}
-      <div className="mode-selector">
-        {Object.entries(GREEK_MODES).map(([key, { label, color, mood }]) => {
-          const isActive = selectedMode === key
-          return (
-            <div key={key} className="mode-pill-wrapper">
+      <div className="mode-section">
+        <div className="mode-selector">
+          {Object.entries(GREEK_MODES).map(([key, { label, color }]) => {
+            const isActive = selectedMode === key
+            return (
               <button
+                key={key}
                 className={`mode-pill${isActive ? ' active' : ''}`}
-                style={isActive ? { borderColor: color, color } : {}}
+                style={isActive ? { background: color, borderColor: color, color: 'var(--bg)' } : {}}
                 onClick={() => setSelectedMode(key)}
               >
                 {label}
               </button>
-              {isActive && (
-                <span className="mode-mood">{mood}</span>
-              )}
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
+        <p className="mode-mood-line">
+          <span className="mood-dot" style={{ color: GREEK_MODES[selectedMode]?.color }}>●</span>
+          {GREEK_MODES[selectedMode]?.mood}
+        </p>
       </div>
 
       {/* SVG */}
@@ -167,8 +169,8 @@ export default function CircleOfFifths({
               <g key={`key-${note}`}>
                 <path
                   d={segmentPath(CX, CY, R_KEY_IN, R_KEY_OUT, ca - 15 + GAP_DEG, ca + 15 - GAP_DEG)}
-                  fill="rgba(255,255,255,0.025)"
-                  stroke="rgba(255,255,255,0.07)"
+                  fill="rgba(26,26,26,0.05)"
+                  stroke="rgba(0,0,0,0.12)"
                   strokeWidth="0.5"
                 />
                 <text
@@ -176,9 +178,9 @@ export default function CircleOfFifths({
                   y={textPos.y}
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  fill="rgba(240,237,228,0.35)"
-                  fontSize="9"
-                  fontFamily="'Google Sans', system-ui, sans-serif"
+                  fill="rgba(26,26,26,0.4)"
+                  fontSize="10"
+                  fontFamily="var(--font-ui)"
                   style={{ pointerEvents: 'none' }}
                 >
                   {keySigFmt}
@@ -204,7 +206,7 @@ export default function CircleOfFifths({
                 <path
                   d={segmentPath(CX, CY, R_MAJ_IN, R_MAJ_OUT, ca - 15 + GAP_DEG, ca + 15 - GAP_DEG)}
                   fill={fill}
-                  stroke="rgba(255,255,255,0.08)"
+                  stroke="rgba(0,0,0,0.1)"
                   strokeWidth="0.5"
                   style={{ filter: glow, transition: 'filter 300ms ease, fill 300ms ease' }}
                 />
@@ -214,8 +216,8 @@ export default function CircleOfFifths({
                   textAnchor="middle"
                   dominantBaseline="middle"
                   fill={textClr}
-                  fontSize={note.length > 1 ? '13' : '15'}
-                  fontFamily="'Google Sans', system-ui, sans-serif"
+                  fontSize={note.length > 1 ? '15' : '17'}
+                  fontFamily="var(--font-ui)"
                   fontWeight={isActive ? '700' : '500'}
                   style={{ pointerEvents: 'none', transition: 'fill 300ms ease' }}
                 >
@@ -251,7 +253,7 @@ export default function CircleOfFifths({
                 <path
                   d={segmentPath(CX, CY, R_MIN_IN, R_MIN_OUT, ca - 15 + GAP_DEG, ca + 15 - GAP_DEG)}
                   fill={fill}
-                  stroke="rgba(255,255,255,0.06)"
+                  stroke="rgba(0,0,0,0.1)"
                   strokeWidth="0.5"
                   style={{ transition: 'fill 300ms ease' }}
                 />
@@ -262,8 +264,8 @@ export default function CircleOfFifths({
                     textAnchor="middle"
                     dominantBaseline="middle"
                     fill={textClr}
-                    fontSize="10"
-                    fontFamily="'Google Sans', system-ui, sans-serif"
+                    fontSize="12"
+                    fontFamily="var(--font-ui)"
                     style={{ pointerEvents: 'none', transition: 'fill 300ms ease' }}
                   >
                     {label}
@@ -279,13 +281,18 @@ export default function CircleOfFifths({
             const degLabel = getDegreeLabel(i, selectedNote, selectedMode)
             const textPos  = midPoint(CX, CY, (R_DEG_IN + R_DEG_OUT) / 2, ca)
             const isTonic  = selectedNote && i === selectedIdx
+            const degFill  = selectedNote ? 'rgba(26,26,26,0.88)' : 'rgba(26,26,26,0.06)'
+            const degText  = selectedNote
+              ? (isTonic ? C_TONIC : 'rgba(255,255,255,0.82)')
+              : 'rgba(26,26,26,0.72)'
             return (
               <g key={`deg-${note}`}>
                 <path
                   d={segmentPath(CX, CY, R_DEG_IN, R_DEG_OUT, ca - 15 + GAP_DEG, ca + 15 - GAP_DEG)}
-                  fill="rgba(255,255,255,0.02)"
-                  stroke="rgba(255,255,255,0.05)"
+                  fill={degFill}
+                  stroke="rgba(0,0,0,0.14)"
                   strokeWidth="0.5"
+                  style={{ transition: 'fill 300ms ease' }}
                 />
                 {degLabel && (
                   <text
@@ -293,11 +300,11 @@ export default function CircleOfFifths({
                     y={textPos.y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    fill={isTonic ? C_TONIC : 'rgba(240,237,228,0.55)'}
-                    fontSize="9"
-                    fontFamily="'Google Sans', system-ui, sans-serif"
+                    fill={degText}
+                    fontSize="11"
+                    fontFamily="var(--font-ui)"
                     fontWeight={isTonic ? '700' : '400'}
-                    style={{ pointerEvents: 'none' }}
+                    style={{ pointerEvents: 'none', transition: 'fill 300ms ease' }}
                   >
                     {degLabel}
                   </text>
@@ -310,7 +317,7 @@ export default function CircleOfFifths({
           <circle
             cx={CX} cy={CY} r={R_DEG_IN - 1}
             fill="var(--bg)"
-            stroke="rgba(255,255,255,0.07)"
+            stroke="rgba(0,0,0,0.1)"
             strokeWidth="0.5"
           />
 
@@ -321,8 +328,8 @@ export default function CircleOfFifths({
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill="var(--gold)"
-                fontSize="24"
-                fontFamily="'Google Sans', system-ui, sans-serif"
+                fontSize="26"
+                fontFamily="var(--font-ui)"
                 fontWeight="700"
                 style={{ pointerEvents: 'none' }}
               >
@@ -333,19 +340,19 @@ export default function CircleOfFifths({
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill="var(--text-muted)"
-                fontSize="9"
-                fontFamily="'Google Sans', system-ui, sans-serif"
+                fontSize="10"
+                fontFamily="var(--font-ui)"
                 style={{ pointerEvents: 'none' }}
               >
                 {GREEK_MODES[selectedMode]?.label}
               </text>
               <g onClick={() => setSelectedNote(null)} style={{ cursor: 'pointer' }}>
-                <circle cx={CX} cy={CY + 30} r="10" fill="rgba(255,255,255,0.07)" />
+                <circle cx={CX} cy={CY + 30} r="10" fill="rgba(0,0,0,0.07)" />
                 <text
                   x={CX} y={CY + 30}
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  fill="rgba(240,237,228,0.5)"
+                  fill="rgba(26,26,26,0.6)"
                   fontSize="14"
                   style={{ userSelect: 'none' }}
                 >
@@ -358,9 +365,9 @@ export default function CircleOfFifths({
               x={CX} y={CY}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="rgba(240,237,228,0.12)"
+              fill="rgba(26,26,26,0.12)"
               fontSize="10"
-              fontFamily="'Google Sans', system-ui, sans-serif"
+              fontFamily="var(--font-ui)"
               letterSpacing="3"
               style={{ pointerEvents: 'none' }}
             >

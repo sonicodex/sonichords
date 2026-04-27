@@ -24,15 +24,15 @@ function App() {
   return (
     <div className="app">
       <main className="app-content">
-        {activeTab === 'circle' && (
+        <div className={`tab-pane${activeTab === 'circle' ? ' tab-visible' : ''}`}>
           <CircleOfFifths
             selectedNote={selectedNote}
             setSelectedNote={setSelectedNote}
             selectedMode={selectedMode}
             setSelectedMode={setSelectedMode}
           />
-        )}
-        {activeTab === 'explorer' && (
+        </div>
+        <div className={`tab-pane${activeTab === 'explorer' ? ' tab-visible' : ''}`}>
           <ChordExplorer
             selectedNote={selectedNote}
             setSelectedNote={setSelectedNote}
@@ -42,17 +42,17 @@ function App() {
             setActiveProgression={setActiveProgression}
             onSave={save}
           />
-        )}
-        {activeTab === 'chords' && (
-          <ChordFinder />
-        )}
-        {activeTab === 'saved' && (
+        </div>
+        <div className={`tab-pane${activeTab === 'chords' ? ' tab-visible' : ''}`}>
+          <ChordFinder onSave={save} />
+        </div>
+        <div className={`tab-pane${activeTab === 'saved' ? ' tab-visible' : ''}`}>
           <SavedProgressions
             progressions={progressions}
             onLoad={handleLoadProgression}
             onRemove={remove}
           />
-        )}
+        </div>
       </main>
       <Nav activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>

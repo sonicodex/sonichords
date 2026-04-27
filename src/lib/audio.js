@@ -132,3 +132,85 @@ export function stopPlayback() {
   if (activeSeq) { activeSeq.dispose(); activeSeq = null }
   synth.releaseAll()
 }
+
+// ── Guitar strum (raw Web Audio, guitar-like pluck) ───────────────────────────
+
+let _rawCtx = null
+function getRawCtx() {
+  if (!_rawCtx) _rawCtx = new (window.AudioContext || window.webkitAudioContext)()
+  return _rawCtx
+}
+
+function _playRawAt(ctx, midi, startTime) {
+  const freq = 440 * Math.pow(2, (midi - 69) / 12)
+  const osc  = ctx.createOscillator()
+  const gain = ctx.createGain()
+  const filt = ctx.createBiquadFilter()
+  osc.type = 'sawtooth'
+  osc.frequency.setValueAtTime(freq, startTime)
+  filt.type = 'lowpass'
+  filt.frequency.setValueAtTime(2400, startTime)
+  filt.Q.setValueAtTime(1, startTime)
+  gain.gain.setValueAtTime(0.28, startTime)
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime + 1.1)
+  osc.connect(filt); filt.connect(gain); gain.connect(ctx.destination)
+  osc.start(startTime); osc.stop(startTime + 1.15)
+}
+
+export function playRawNote(midi) {
+  try {
+    const ctx = getRawCtx()
+    if (ctx.state === 'suspended') ctx.resume()
+    _playRawAt(ctx, midi, ctx.currentTime)
+  } catch (_) {}
+}
+
+export function strumChord(midiNotes) {
+  if (!midiNotes || midiNotes.length === 0) return
+  try {
+    const ctx = getRawCtx()
+    if (ctx.state === 'suspended') ctx.resume()
+    const now = ctx.currentTime
+    midiNotes.forEach((midi, i) => _playRawAt(ctx, midi, now + i * 0.028))
+  } catch (_) {}
+}
+
+// ── Note-name → MIDI helpers ──────────────────────────────────────────────────
+
+const _NOTE_SEMI = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 }
+
+function _noteNamesToMidi(noteNames, startOctave = 3) {
+  let octave = startOctave
+  let prevSemi = -1
+  return noteNames.map(name => {
+    const sharp = FLAT_TO_SHARP[name] || name
+    const semi  = _NOTE_SEMI[sharp] ?? 0
+    if (semi <= prevSemi) octave++
+    prevSemi = semi
+    return (octave + 1) * 12 + semi
+  })
+}
+
+export function strumChordNames(noteNames) {
+  if (!noteNames || noteNames.length === 0) return
+  strumChord(_noteNamesToMidi(noteNames))
+}
+
+let _rawTimers = []
+
+export function stopRawProgression() {
+  _rawTimers.forEach(clearTimeout)
+  _rawTimers = []
+}
+
+export function playRawProgression(noteNameArrays, bpm = 90, onChordChange) {
+  stopRawProgression()
+  const beatMs = (60 / bpm) * 1000
+  noteNameArrays.forEach((noteNames, i) => {
+    _rawTimers.push(setTimeout(() => {
+      strumChordNames(noteNames)
+      onChordChange(i)
+    }, i * beatMs))
+  })
+  _rawTimers.push(setTimeout(() => onChordChange(null), noteNameArrays.length * beatMs))
+}

@@ -15,18 +15,57 @@
   z-index: 10;
 }
 
+.chord-finder-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
 .chord-finder-title {
   font-size: 18px;
   font-weight: 600;
   color: var(--text);
-  margin-bottom: 12px;
   letter-spacing: 0.01em;
+}
+
+/* ── Library A/B selector ─────────────────────────────────────────────────── */
+
+.lib-selector {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lib-pill {
+  padding: 4px 12px;
+  border: none;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-mono);
+}
+
+.lib-pill + .lib-pill {
+  border-left: 1px solid var(--border);
+}
+
+.lib-pill.active {
+  background: var(--gold);
+  color: #fff;
 }
 
 .chord-finder-body {
   flex: 1;
   overflow-y: auto;
 }
+
+.cf-pane          { display: none; }
+.cf-pane.cf-pane-visible { display: contents; }
 
 /* ── Mode pills ───────────────────────────────────────────────────────────── */
 
@@ -124,11 +163,13 @@
   gap: 10px;
 }
 
-.chord-card-name {
+.chord-list .chord-card-name {
   font-size: 17px;
   font-weight: 700;
   color: var(--gold);
   min-width: 60px;
+  width: auto;
+  text-align: left;
 }
 
 .chord-card-type {
@@ -296,13 +337,37 @@
 }
 
 .position-notation {
-  font-family: var(--font-ui, 'JetBrains Mono', monospace);
+  font-family: var(--font-mono);
   font-size: 22px;
   font-weight: 600;
   color: var(--text);
   text-align: center;
   letter-spacing: 0.22em;
   margin: 6px 0 0;
+}
+
+.identifier-alt-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.identifier-alt-toggle {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.identifier-alt-toggle:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
 }
 
 .identifier-alternatives {
@@ -344,7 +409,58 @@
   font-weight: 500;
 }
 
+/* ── Chord play button ────────────────────────────────────────────────────── */
+
+.chord-play-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition);
+  padding: 0;
+}
+
+.chord-play-btn:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
+}
+
+.identifier-play-btn {
+  width: 38px;
+  height: 38px;
+  font-size: 14px;
+  border-width: 2px;
+}
+
 /* ── Diagram nav (reset button override) ──────────────────────────────────── */
+
+.bjorker-add-btn {
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--gold);
+  background: var(--surface);
+  color: var(--gold);
+  font-size: 13px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.bjorker-add-btn:hover {
+  background: var(--gold);
+  color: #fff;
+}
 
 .diagram-reset {
   padding: 4px 12px;
@@ -359,4 +475,8 @@
 .diagram-nav button:disabled {
   opacity: 0.35;
   cursor: default;
+}
+
+.identifier-section .progression-builder {
+  width: 100%;
 }

@@ -6,44 +6,54 @@
 }
 
 /* Mode selector row */
+.explorer-mode-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .explorer-mode-row {
   display: flex;
   gap: 6px;
   overflow-x: auto;
   padding: 2px 0;
+  scrollbar-width: none;
 }
 
-.mode-pill-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.mode-mood {
-  font-size: 10px;
-  color: var(--text-muted);
-  text-align: center;
-  white-space: nowrap;
-  font-family: var(--font-ui);
-  letter-spacing: 0.02em;
-}
+.explorer-mode-row::-webkit-scrollbar { display: none; }
 
 .exp-mode-pill {
   flex-shrink: 0;
   padding: 7px 14px;
   border-radius: 20px;
   border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-muted);
+  background: none;
+  color: var(--text);
   font-size: 13px;
   transition: all var(--transition);
   white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
 .exp-mode-pill.active {
-  background: rgba(255,255,255,0.06);
+  font-weight: 600;
+}
+
+.mode-mood-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 18px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+}
+
+.mood-dot {
+  font-size: 8px;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 /* Section label */
@@ -198,46 +208,52 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 10px 4px 6px;
+  justify-content: center;
+  gap: 2px;
+  padding: 14px 0px;
   width: 100%;
+  flex: 1;
   background: none;
   border: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-.chord-card-body:active {
-  opacity: 0.75;
-}
+.chord-card-body:active { opacity: 0.75; }
 
 .chord-card-play {
   width: 100%;
-  padding: 4px 0;
+  padding: 6px 0;
   border: none;
-  border-top: 1px solid var(--border);
-  background: rgba(255,255,255,0.02);
+  border-top: 1px solid rgba(0,0,0,0.1);
+  background: none;
   color: var(--text-muted);
-  font-size: 9px;
+  font-size: 10px;
   cursor: pointer;
   transition: background var(--transition), color var(--transition);
   -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
 .chord-card-play:hover, .chord-card-play:active {
-  background: rgba(255,255,255,0.07);
+  background: rgba(0,0,0,0.05);
   color: var(--text);
 }
 
 .chord-card-degree {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
   font-weight: 500;
+  letter-spacing: 0.05em;
 }
 
 .chord-card-name {
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 700;
+  color: var(--mode-color, var(--gold));
+  line-height: 1;
+  text-align: center;
+  width: 100%;
 }
 
 .chord-card-quality {
@@ -245,20 +261,15 @@
   color: var(--text-muted);
 }
 
-.card-maj { border-color: rgba(237,139,22,0.2); }
-.card-maj .chord-card-name { color: var(--gold); }
-.card-maj:hover { background: rgba(237,139,22,0.06); border-color: rgba(237,139,22,0.4); }
-.card-maj .chord-card-play:hover { background: rgba(237,139,22,0.1); color: var(--gold); }
+.card-active {
+  border-color: var(--mode-color, var(--gold)) !important;
+  outline: none;
+}
 
-.card-min { border-color: rgba(26,127,175,0.2); }
-.card-min .chord-card-name { color: #1A7FAF; }
-.card-min:hover { background: rgba(26,127,175,0.06); border-color: rgba(26,127,175,0.4); }
-.card-min .chord-card-play:hover { background: rgba(26,127,175,0.1); color: #1A7FAF; }
-
-.card-dim { border-color: rgba(225,82,61,0.2); }
-.card-dim .chord-card-name { color: var(--red); }
-.card-dim:hover { background: rgba(225,82,61,0.06); border-color: rgba(225,82,61,0.4); }
-.card-dim .chord-card-play:hover { background: rgba(225,82,61,0.1); color: var(--red); }
+.card-active .chord-card-play {
+  border-top-color: var(--mode-color, var(--gold));
+  opacity: 0.6;
+}
 
 /* Suggestions */
 .suggestions-section {}

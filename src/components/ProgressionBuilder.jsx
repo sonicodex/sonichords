@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { getScale, getDiatonicChords } from '../lib/musicTheory'
-import { playChord, playProgression, stopPlayback, toScientific, setVolume } from '../lib/audio'
+import { playChord, playProgression, stopPlayback, toScientific, setVolume, strumChordNames, playRawProgression, stopRawProgression } from '../lib/audio'
+import { chords as libraryChords } from '../lib/chordLibrary'
 import './ProgressionBuilder.css'
 
-export default function ProgressionBuilder({ chords, setChords, root, mode, onSave }) {
+export default function ProgressionBuilder({ chords, setChords, root, mode, onSave, rawAudio = false }) {
   const [name, setName]                   = useState('')
   const [isPlaying, setIsPlaying]         = useState(false)
   const [activeChordIndex, setActiveChordIndex] = useState(null)
@@ -20,31 +21,52 @@ export default function ProgressionBuilder({ chords, setChords, root, mode, onSa
   function findChordNotes(chordName) {
     const diatonic = resolveDiatonic()
     return diatonic.find(c => c.name === chordName)
+        ?? libraryChords.find(c => c.name === chordName)
+        ?? null
   }
 
   async function handleChipClick(chordName) {
     const chordObj = findChordNotes(chordName)
-    if (chordObj) await playChord(chordObj.notes, chordObj.notes[0])
+    if (!chordObj) return
+    if (rawAudio) {
+      strumChordNames(chordObj.notes)
+    } else {
+      await playChord(chordObj.notes, chordObj.notes[0])
+    }
   }
 
   async function handlePlay() {
     if (chords.length === 0) return
-    const diatonic = resolveDiatonic()
-    const chordNoteArrays = chords.map(chordName => {
-      const chordObj = diatonic.find(c => c.name === chordName)
-      if (!chordObj) return []
-      return chordObj.notes.map(n => toScientific(n, chordObj.notes[0]))
-    })
-    setIsPlaying(true)
-    setActiveChordIndex(null)
-    await playProgression(chordNoteArrays, bpm, (i) => {
-      setActiveChordIndex(i)
-      if (i === null) setIsPlaying(false)
-    })
+    if (rawAudio) {
+      const noteArrays = chords.map(cn => {
+        const chordObj = findChordNotes(cn)
+        return chordObj ? chordObj.notes : []
+      })
+      setIsPlaying(true)
+      setActiveChordIndex(null)
+      playRawProgression(noteArrays, bpm, i => {
+        setActiveChordIndex(i)
+        if (i === null) setIsPlaying(false)
+      })
+    } else {
+      const diatonic = resolveDiatonic()
+      const chordNoteArrays = chords.map(chordName => {
+        const chordObj = diatonic.find(c => c.name === chordName)
+                      ?? libraryChords.find(c => c.name === chordName)
+        if (!chordObj) return []
+        return chordObj.notes.map(n => toScientific(n, chordObj.notes[0]))
+      })
+      setIsPlaying(true)
+      setActiveChordIndex(null)
+      await playProgression(chordNoteArrays, bpm, (i) => {
+        setActiveChordIndex(i)
+        if (i === null) setIsPlaying(false)
+      })
+    }
   }
 
   function handleStop() {
-    stopPlayback()
+    if (rawAudio) stopRawProgression(); else stopPlayback()
     setIsPlaying(false)
     setActiveChordIndex(null)
   }
@@ -62,7 +84,7 @@ export default function ProgressionBuilder({ chords, setChords, root, mode, onSa
   }
 
   function handleClearAll() {
-    stopPlayback()
+    if (rawAudio) stopRawProgression(); else stopPlayback()
     setIsPlaying(false)
     setActiveChordIndex(null)
     setChords([])

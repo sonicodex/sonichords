@@ -24,7 +24,8 @@ export default function ChordExplorer({
   setActiveProgression,
   onSave,
 }) {
-  const [localRoot, setLocalRoot] = useState('C')
+  const [localRoot,   setLocalRoot]   = useState('C')
+  const [playingIdx,  setPlayingIdx]  = useState(null)
   const root = selectedNote || localRoot
   const scale           = getScale(root, selectedMode)
   const scientificScale = scaleToScientific(scale)
@@ -35,8 +36,10 @@ export default function ChordExplorer({
     setActiveProgression(prev => [...prev, chord.name])
   }
 
-  async function handleChordPlay(chord) {
+  async function handleChordPlay(chord, i) {
+    setPlayingIdx(i)
     await playChord(chord.notes, chord.notes[0])
+    setPlayingIdx(null)
   }
 
   async function handleNotePlay(index) {
@@ -53,47 +56,49 @@ export default function ChordExplorer({
     setActiveProgression(resolved)
   }
 
+  const modeColor = GREEK_MODES[selectedMode]?.color ?? '#F5C000'
+
   return (
-    <div className="chord-explorer">
+    <div className="chord-explorer" style={{ '--mode-color': modeColor }}>
 
       {/* Mode selector */}
-      <div className="explorer-mode-row">
-        {Object.entries(GREEK_MODES).map(([key, { label, color, mood }]) => {
-          const isActive = selectedMode === key
-          return (
-            <div key={key} className="mode-pill-wrapper">
+      <div className="explorer-mode-section">
+        <div className="explorer-mode-row">
+          {Object.entries(GREEK_MODES).map(([key, { label, color }]) => {
+            const isActive = selectedMode === key
+            return (
               <button
+                key={key}
                 className={`exp-mode-pill${isActive ? ' active' : ''}`}
-                style={isActive ? { borderColor: color, color } : {}}
+                style={isActive ? { background: color, borderColor: color, color: 'var(--bg)' } : {}}
                 onClick={() => setSelectedMode(key)}
               >
                 {label}
               </button>
-              {isActive && (
-                <span className="mode-mood">{mood}</span>
-              )}
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
+        <p className="mode-mood-line">
+          <span className="mood-dot" style={{ color: modeColor }}>●</span>
+          {GREEK_MODES[selectedMode]?.mood}
+        </p>
       </div>
 
-      {/* Root note picker (shown only when no circle note is selected) */}
-      {!selectedNote && (
-        <div className="root-picker-section">
-          <p className="section-label">Tónica</p>
-          <div className="root-picker">
-            {CIRCLE_NOTES.map(n => (
-              <button
-                key={n}
-                className={`root-pill${localRoot === n ? ' active' : ''}`}
-                onClick={() => setLocalRoot(n)}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
+      {/* Root note picker (always visible) */}
+      <div className="root-picker-section">
+        <p className="section-label">Tónica</p>
+        <div className="root-picker">
+          {CIRCLE_NOTES.map(n => (
+            <button
+              key={n}
+              className={`root-pill${root === n ? ' active' : ''}`}
+              onClick={() => { setLocalRoot(n); setSelectedNote(null) }}
+            >
+              {n}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Header */}
       <div className="explorer-header">
@@ -101,11 +106,6 @@ export default function ChordExplorer({
           <h1 className="explorer-root">{root}</h1>
           <p className="explorer-mode-name">{GREEK_MODES[selectedMode]?.label}</p>
         </div>
-        {selectedNote && (
-          <button className="clear-note-btn" onClick={() => setSelectedNote(null)}>
-            Cambiar tónica ×
-          </button>
-        )}
       </div>
 
       {/* Scale pills */}
@@ -126,7 +126,7 @@ export default function ChordExplorer({
         <p className="section-label">Acordes diatónicos</p>
         <div className="chord-grid">
           {chords.map((chord, i) => (
-            <div key={i} className={`chord-card ${QUALITY_CLASS[chord.quality]}`}>
+            <div key={i} className={`chord-card ${QUALITY_CLASS[chord.quality]}${playingIdx === i ? ' card-active' : ''}`}>
               <div className="chord-card-body" role="button" tabIndex={0}
                 onClick={() => handleChordClick(chord)}
                 onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && handleChordClick(chord)}
@@ -137,7 +137,7 @@ export default function ChordExplorer({
               </div>
               <button
                 className="chord-card-play"
-                onClick={() => handleChordPlay(chord)}
+                onClick={() => handleChordPlay(chord, i)}
                 aria-label={`Reproducir ${chord.name}`}
               >▶</button>
             </div>

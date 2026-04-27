@@ -10,8 +10,9 @@
   --teal:         #1A1A1A;
   --text:         #1A1A1A;
   --text-muted:   rgba(26,26,26,0.45);
-  --font-display: 'Cinzel', serif;
-  --font-ui:      'DM Mono', monospace;
+  --font-display: 'Oswald', sans-serif;
+  --font-ui:      'DM Sans', sans-serif;
+  --font-mono:    'Source Code Pro', monospace;
   --radius:       10px;
   --transition:   300ms ease;
 }

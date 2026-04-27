@@ -1,11 +1,14 @@
-import chordData from './sonichords-chord-library.json'
+import chordDataA from './chord-library-A.json'
+import chordDataB from './chord-library-B.json'
 
-// Todos los acordes
-export const chords = chordData.chords
+const byName = (a, b) => a.name.localeCompare(b.name)
 
-// Afinación estándar del JSON
-export const STANDARD_TUNING = chordData.tuning
-// ['E2', 'A2', 'D3', 'G3', 'B3', 'E4']
+export const LIBRARY_A = { ...chordDataA, chords: [...chordDataA.chords].sort(byName) }
+export const LIBRARY_B = { ...chordDataB, chords: [...chordDataB.chords].sort(byName) }
+
+// Default (backward compat — apunta a A)
+export const chords         = LIBRARY_A.chords
+export const STANDARD_TUNING = chordDataA.tuning
 
 // Buscar acorde exacto por root + type (+ bass opcional para slash chords)
 export function findChord(root, type, bass = null) {
@@ -16,9 +19,9 @@ export function findChord(root, type, bass = null) {
   ) || null
 }
 
-// Buscar por nombre display o alias (ej. 'Em7', 'Bbmaj7', 'C#dim')
-// Resultados ordenados: nombre exacto → nombre empieza con → alias exacto → alias empieza con → contiene
-export function searchChords(query) {
+// ── Funciones que aceptan la librería como primer parámetro ────────────────
+
+export function searchChordsIn(chordList, query) {
   if (!query || query.trim().length < 1) return []
   const q = query.trim().toLowerCase()
 
@@ -32,7 +35,7 @@ export function searchChords(query) {
     return 5
   }
 
-  return chords
+  return chordList
     .filter(c =>
       c.name?.toLowerCase().includes(q) ||
       c.fullName?.toLowerCase().includes(q) ||
@@ -41,13 +44,22 @@ export function searchChords(query) {
     .sort((a, b) => rank(a) - rank(b))
 }
 
-// Obtener todos los acordes de una raíz, sin slash chords
-export function getChordsByRoot(root) {
-  return chords.filter(c => c.root === root && !c.bass)
+export function getChordsByRootIn(chordList, root) {
+  return chordList.filter(c => c.root === root && !c.bass)
 }
 
-// Obtener raíces únicas en orden cromático
+// ── Wrappers backward-compat (usan la librería por defecto A) ──────────────
+
+export function searchChords(query) {
+  return searchChordsIn(chords, query)
+}
+
+export function getChordsByRoot(root) {
+  return getChordsByRootIn(chords, root)
+}
+
+// Raíces únicas en orden cromático
 export const ROOTS = ['C','C#','Db','D','D#','Eb','E','F','F#','Gb','G','G#','Ab','A','A#','Bb','B']
 
-// Obtener tipos únicos presentes en la librería
+// Tipos únicos presentes en la librería A
 export const CHORD_TYPES = [...new Set(chords.filter(c => !c.bass).map(c => c.type))]

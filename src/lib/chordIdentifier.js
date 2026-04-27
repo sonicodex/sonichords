@@ -159,13 +159,14 @@ function buildInversionInfo(chord, bass) {
  * }
  * o null si no hay match razonable.
  */
-export function identifyChord(pitchClasses, bassNote = null) {
+export function identifyChord(pitchClasses, bassNote = null, chordsOverride = null) {
   if (!pitchClasses || pitchClasses.length === 0) return null
 
   const inputSet = new Set(pitchClasses)
   const candidates = []
+  const chordList = chordsOverride ?? chords
 
-  for (const chord of chords) {
+  for (const chord of chordList) {
     const chordSet = new Set(chord.notes)
 
     let matches = 0

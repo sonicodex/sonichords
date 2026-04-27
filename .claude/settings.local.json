@@ -14,7 +14,9 @@
       "Bash(ls /Users/machael/Documents/sonicoDevel/sonichords/docs/*.md)",
       "Read(//Users/machael/.ssh/**)",
       "Bash(git config:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)"
     ]
   }
 }

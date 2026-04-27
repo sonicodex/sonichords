@@ -1,0 +1,38 @@
+.fretboard-outer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 4px;
+}
+
+.fretboard-svg-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.fb-nav {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 8px;
+  width: 30px;
+  height: 38px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.fb-nav:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.fb-nav:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
